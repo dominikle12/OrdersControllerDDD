@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Domain.AggregateRoots;
 using Infrastructure.Data.Interfaces;
 using Infrastructure.Data.Models;
 using Infrastructure.Data.Models.Requests;
@@ -25,31 +26,21 @@ namespace OrdersControllerDDD.Api.V1.Controllers
             _ordersService = ordersService;
         }
 
-        [HttpPost("get-filtered-orders")]
+        [HttpPost("get-orders")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetFilteredOrdersResponse))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
-        public async Task<ActionResult<GetFilteredOrdersResponse>> GetFilteredOrders([FromQuery] string username, [FromQuery] string userRoles, [FromBody] GetFilteredRequest request)
+        public async Task<ActionResult<GetFilteredOrdersResponse>> GetOrders()
         {
-            _logger.LogInformation("GetFilteredOrders invoked with {@request}", request);
+            _logger.LogInformation("GetFilteredOrders invoked with ");
 
             try
             {
-                #region Mapiranje
-                var config = new MapperConfiguration(cfg =>
-                {
-                    cfg.CreateMap<GetFilteredRequest, Pagination>();
-                });
 
-                var mapper = new Mapper(config);
-
-                var pagination = mapper.Map<Pagination>(request);
-                #endregion
-
-                var result = await _ordersService.GetFilteredOrders(pagination, username, userRoles);
+                var result = await _ordersService.GetOrders();
 
                 if (result == null)
                 {
-                    return this.Problem($"GetFilteredOrders returned null  for next request {request}", statusCode: 500);
+                    return this.Problem("GetFilteredOrders returned null", statusCode: 500);
                 }
 
                 var retVal = new GetFilteredOrdersResponse()
@@ -78,6 +69,21 @@ namespace OrdersControllerDDD.Api.V1.Controllers
             var result = await _ordersService.AddCustomer(request);
             if (result == null)
                 return NoContent();
+            return Ok(result);
+        }
+
+        [HttpPost("add-order")]
+        public async Task<ActionResult> AddOrder([FromBody] AddOrderRequest request)
+        {
+            var result = await _ordersService.AddOrder(request);
+            if (result == null)
+                return NoContent();
+            return Ok(result);
+        }
+        [HttpGet("get-all-customer-orders")]
+        public async Task<ActionResult<List<Order>>> GetAllCustomerOrders([FromQuery] Guid customerId)
+        {
+            var result = await _ordersService.GetAllCustomerOrders(customerId);
             return Ok(result);
         }
     }

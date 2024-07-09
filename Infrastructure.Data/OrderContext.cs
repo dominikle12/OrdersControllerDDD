@@ -70,6 +70,7 @@ namespace Infrastructure.Data
                     address.Property(a => a.Country).HasMaxLength(100);
                     address.Property(a => a.Phone).HasMaxLength(30);
                 });
+                
             });
         }
     }

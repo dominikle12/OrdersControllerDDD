@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Domain.AggregateRoots;
 using Domain.Entities;
 using Infrastructure.Data.Interfaces;
 using Infrastructure.Data.Models;
@@ -15,9 +16,9 @@ namespace Infrastructure.Data.Services
             _orderRepository = orderRepository;
         }
 
-        public async Task<GetFilteredOrdersResponse> GetFilteredOrders(Pagination filters, string username, string userRoles)
+        public async Task<GetFilteredOrdersResponse> GetOrders()
         {
-            var filteredOrders = await _orderRepository.GetFilteredOrders(filters, username, userRoles);
+            var filteredOrders = await _orderRepository.GetOrders();
             var filteredOrdersReturn = new GetFilteredOrdersResponse();
             if (filteredOrders != null)
             {
@@ -35,6 +36,18 @@ namespace Infrastructure.Data.Services
         public async Task<Customer> AddCustomer(AddCustomerRequest request)
         {
             var response = await _orderRepository.AddCustomer(request);
+            return response;
+        } 
+        
+        public async Task<AddOrderResponse> AddOrder(AddOrderRequest request)
+        {
+            var response = await _orderRepository.AddOrder(request);
+            return response;
+        }
+
+        public async Task<List<Order>> GetAllCustomerOrders(Guid customerId)
+        {
+            var response = await _orderRepository.GetAllCustomerOrders(customerId);
             return response;
         }
     }
